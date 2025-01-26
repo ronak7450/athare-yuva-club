@@ -1,5 +1,11 @@
-cd c:/xampp/htdocs# System Files
+cd c:/xampp/htdocs
+# System Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # IDE/Editor folders
@@ -9,13 +15,19 @@ Thumbs.db
 *.sublime-project
 
 # Logs
-*.log
 logs/
 
 # Dependencies
 node_modules/
 
-# Environment variables
+# Configuration files
+config/db.php
+
+# Uploaded files
+uploads/*
+!uploads/.gitkeep
+
+# Environment files
 .env
 .env.local
 
@@ -31,3 +43,5 @@ access_log
 # Temporary files
 tmp/
 temp/
+*.log
+*.tmp

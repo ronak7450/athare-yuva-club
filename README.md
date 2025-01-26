@@ -1,106 +1,77 @@
-# सरस्वती पूजा हिसाब ट्रैकिंग सिस्टम
+# अठारे युवा क्लब - Financial Management System
 
-यह एप्लिकेशन सरस्वती पूजा के दौरान आय और खर्च का हिसाब रखने के लिए बनाया गया है।
+A comprehensive financial management system for अठारे युवा क्लब that helps track income, expenses, and generate reports.
 
-## सिस्टम आवश्यकताएं
+## Features
 
-- XAMPP (Apache + MySQL)
-- PHP 7.4 या उससे ऊपर
-- वेब ब्राउज़र (Chrome, Firefox, आदि)
+- 💰 Transaction Management (Income & Expenses)
+- 📊 Financial Reports & Analytics
+- 📸 Photo Upload Support
+- 🔒 Secure Admin Panel
+- 📱 Mobile-Responsive Design
 
-## इंस्टॉलेशन
+## Tech Stack
 
-1. XAMPP इंस्टॉल करें
-2. htdocs फोल्डर में सभी फाइल्स कॉपी करें
-3. Apache और MySQL सर्विस स्टार्ट करें
-4. ब्राउज़र में http://localhost/login.html खोलें
+- Frontend: HTML5, CSS3, JavaScript, Bootstrap 5
+- Backend: PHP
+- Database: MySQL
+- Charts: Chart.js
+- Icons: Bootstrap Icons
 
-## डिफ़ॉल्ट लॉगिन क्रेडेंशियल्स
-
-- यूजरनेम: admin
-- पासवर्ड: admin123
-
-## फीचर्स
-
-1. **डैशबोर्ड**
-   - कुल आय और खर्च का रीयल-टाइम व्यू
-   - आय और खर्च जोड़ने के क्विक बटन
-   - विजुअल चार्ट्स
-
-2. **लेन-देन**
-   - सभी लेन-देन की लिस्ट
-   - फिल्टर और सर्च
-   - आय/खर्च के अनुसार छँटाई
-
-3. **रिपोर्ट्स**
-   - कस्टम डेट रेंज सेलेक्शन
-   - विस्तृत आँकड़े और चार्ट्स
-   - PDF डाउनलोड
-
-## सुरक्षा फीचर्स
-
-- यूजर ऑथेंटिकेशन
-- पासवर्ड एनक्रिप्शन
-- SQL इंजेक्शन प्रोटेक्शन
-
-## फाइल स्ट्रक्चर
+## Directory Structure
 
 ```
-htdocs/
-├── api/
-│   ├── auth.php
-│   ├── transactions.php
-│   └── reports.php
-├── config/
-│   └── db.php
-├── css/
-│   └── style.css
-├── js/
-│   ├── script.js
-│   ├── transactions.js
-│   └── reports.js
-├── index.html
-├── login.html
-├── transactions.html
-└── reports.html
+.
+├── admin/           # Admin panel files
+├── api/            # API endpoints
+├── config/         # Configuration files
+├── css/           # Custom CSS files
+├── js/            # JavaScript files
+├── uploads/       # Uploaded files directory
+└── index.html     # Main entry point
 ```
 
-## डेटाबेस स्कीमा
+## Setup Instructions
 
-### users
-- id (INT, AUTO_INCREMENT)
-- username (VARCHAR)
-- password (VARCHAR)
-- created_at (TIMESTAMP)
+1. Clone the repository
+2. Copy `config/db.example.php` to `config/db.php` and update database credentials
+3. Create the MySQL database and import the schema from `database.sql`
+4. Ensure the `uploads` directory has write permissions
+5. Configure your web server to serve the application
 
-### income
-- id (INT, AUTO_INCREMENT)
-- name (VARCHAR)
-- amount (DECIMAL)
-- date (DATE)
-- note (TEXT)
-- created_at (TIMESTAMP)
+## Configuration
 
-### expense
-- id (INT, AUTO_INCREMENT)
-- title (VARCHAR)
-- amount (DECIMAL)
-- date (DATE)
-- note (TEXT)
-- created_at (TIMESTAMP)
+Create `config/db.php` with the following structure:
 
-## एरर हैंडलिंग
+```php
+<?php
+function getConnection() {
+    $host = 'your_host';
+    $dbname = 'your_database';
+    $username = 'your_username';
+    $password = 'your_password';
+    
+    return new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+}
+?>
+```
 
-- सभी API कॉल्स में एरर हैंडलिंग
-- यूजर-फ्रेंडली एरर मैसेज
-- लॉगिंग फॉर डीबगिंग
+## Security Features
 
-## मेंटेनेंस
+- Session-based authentication
+- SQL injection prevention
+- XSS protection
+- CSRF protection
+- Secure file upload handling
 
-1. रेगुलर बैकअप लें
-2. लॉग्स चेक करें
-3. पासवर्ड नियमित रूप से बदलें
+## Contributing
 
-## सपोर्ट
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-किसी भी समस्या के लिए सिस्टम एडमिन से संपर्क करें।
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
