@@ -116,8 +116,13 @@
                             <input type="text" class="form-control" name="description" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date</label>
-                            <input type="date" class="form-control" name="date" required>
+                            <label class="form-label">Date & Time</label>
+                            <input type="datetime-local" class="form-control" name="date" id="incomeDateTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Photo (Optional)</label>
+                            <input type="file" class="form-control" name="photo" accept="image/*" id="incomePhoto">
+                            <div id="incomePhotoPreview" class="mt-2"></div>
                         </div>
                         <button type="submit" class="btn btn-success">Add Income</button>
                     </form>
@@ -145,8 +150,13 @@
                             <input type="text" class="form-control" name="description" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date</label>
-                            <input type="date" class="form-control" name="date" required>
+                            <label class="form-label">Date & Time</label>
+                            <input type="datetime-local" class="form-control" name="date" id="expenseDateTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Photo (Optional)</label>
+                            <input type="file" class="form-control" name="photo" accept="image/*" id="expensePhoto">
+                            <div id="expensePhotoPreview" class="mt-2"></div>
                         </div>
                         <button type="submit" class="btn btn-danger">Add Expense</button>
                     </form>
@@ -162,13 +172,85 @@
             window.location.href = 'login.html';
         }
 
-        // Logout functionality
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('adminLoggedIn');
-            window.location.href = 'login.html';
+        // Set current date and time for both forms
+        function setCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const currentDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
+            document.getElementById('incomeDateTime').value = currentDateTime;
+            document.getElementById('expenseDateTime').value = currentDateTime;
+        }
+
+        // Handle photo preview
+        function handlePhotoPreview(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="img-fluid" style="max-height: 200px;">`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Add photo preview listeners
+        document.getElementById('incomePhoto').addEventListener('change', function() {
+            handlePhotoPreview(this, 'incomePhotoPreview');
         });
 
-        // Load transactions from localStorage
+        document.getElementById('expensePhoto').addEventListener('change', function() {
+            handlePhotoPreview(this, 'expensePhotoPreview');
+        });
+
+        // Add transaction with photo
+        function addTransaction(type, formId) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const photoInput = document.getElementById(type.toLowerCase() + 'Photo');
+                
+                const transaction = {
+                    id: Date.now().toString(),
+                    type: type,
+                    amount: formData.get('amount'),
+                    description: formData.get('description'),
+                    date: formData.get('date')
+                };
+
+                // Save photo if uploaded
+                if (photoInput.files && photoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        transaction.photo = e.target.result;
+                        saveTransaction(transaction, form, type);
+                    }
+                    reader.readAsDataURL(photoInput.files[0]);
+                } else {
+                    saveTransaction(transaction, form, type);
+                }
+            });
+        }
+
+        function saveTransaction(transaction, form, type) {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            loadTransactions();
+            form.reset();
+            setCurrentDateTime(); // Reset datetime to current
+            document.getElementById(type.toLowerCase() + 'PhotoPreview').innerHTML = ''; // Clear photo preview
+            bootstrap.Modal.getInstance(document.getElementById(`${type.toLowerCase()}Modal`)).hide();
+        }
+
+        // Load transactions with photos
         function loadTransactions() {
             const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
             const tbody = document.getElementById('transactionList');
@@ -177,8 +259,11 @@
             transactions.forEach(t => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${t.date}</td>
-                    <td>${t.description}</td>
+                    <td>${new Date(t.date).toLocaleString()}</td>
+                    <td>
+                        ${t.description}
+                        ${t.photo ? `<br><img src="${t.photo}" class="img-fluid" style="max-height: 50px;">` : ''}
+                    </td>
                     <td>${t.type}</td>
                     <td>₹${t.amount}</td>
                     <td>
@@ -188,30 +273,6 @@
                     </td>
                 `;
                 tbody.appendChild(row);
-            });
-        }
-
-        // Add transaction
-        function addTransaction(type, formId) {
-            const form = document.getElementById(formId);
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const transaction = {
-                    id: Date.now().toString(),
-                    type: type,
-                    amount: formData.get('amount'),
-                    description: formData.get('description'),
-                    date: formData.get('date')
-                };
-
-                const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-                transactions.push(transaction);
-                localStorage.setItem('transactions', JSON.stringify(transactions));
-
-                loadTransactions();
-                form.reset();
-                bootstrap.Modal.getInstance(document.getElementById(`${type.toLowerCase()}Modal`)).hide();
             });
         }
 
@@ -227,6 +288,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            setCurrentDateTime();
             loadTransactions();
             addTransaction('Income', 'incomeForm');
             addTransaction('Expense', 'expenseForm');
