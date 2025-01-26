@@ -3,74 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Manager</title>
+    <title>Transactions - अठारे युवा क्लब</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .transaction-photo {
+            max-width: 100px;
+            border-radius: 5px;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Account Manager</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="transactions.html">Transactions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="reports.html">Reports</a>
-                    </li>
-                </ul>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+        <div class="container-fluid justify-content-end">
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-primary">
+                    <i class="bi bi-speedometer2"></i>Dashboard
+                </a>
+                <a href="transactions.html" class="btn btn-primary active">
+                    <i class="bi bi-currency-rupee"></i>Transactions
+                </a>
+                <a href="reports.html" class="btn btn-primary">
+                    <i class="bi bi-file-text"></i>Reports
+                </a>
+                <a href="admin/" class="btn btn-primary">
+                    <i class="bi bi-person-gear"></i>Admin
+                </a>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Transactions History</h5>
-                        <div>
-                            <select class="form-select" id="transactionType">
-                                <option value="all">All Transactions</option>
-                                <option value="income">Only Income</option>
-                                <option value="expense">Only Expense</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th>Photo</th>
-                                        <th>Note</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="transactionList">
-                                    <!-- Transactions will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <h2>All Transactions</h2>
+        
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Type</label>
+                    <select class="form-select" id="typeFilter">
+                        <option value="all">All</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sort By</label>
+                    <select class="form-select" id="sortBy">
+                        <option value="date-desc">Date (Newest)</option>
+                        <option value="date-asc">Date (Oldest)</option>
+                        <option value="amount-desc">Amount (High to Low)</option>
+                        <option value="amount-asc">Amount (Low to High)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search...">
                 </div>
             </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Person</th>
+                        <th>Photo</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsList">
+                    <!-- Transactions will be loaded here -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/transactions.js"></script>
+    <script>
+        // Format currency
+        function formatCurrency(amount) {
+            return '₹' + parseFloat(amount).toLocaleString('en-IN');
+        }
+
+        // Load and filter transactions
+        function loadTransactions() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const typeFilter = document.getElementById('typeFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // Filter transactions
+            let filteredTransactions = transactions.filter(transaction => {
+                if (typeFilter !== 'all' && transaction.type !== typeFilter) return false;
+                
+                const searchString = `${transaction.description} ${transaction.person_name}`.toLowerCase();
+                return searchString.includes(searchTerm);
+            });
+
+            // Sort transactions
+            filteredTransactions.sort((a, b) => {
+                switch(sortBy) {
+                    case 'date-desc':
+                        return new Date(b.date) - new Date(a.date);
+                    case 'date-asc':
+                        return new Date(a.date) - new Date(b.date);
+                    case 'amount-desc':
+                        return parseFloat(b.amount) - parseFloat(a.amount);
+                    case 'amount-asc':
+                        return parseFloat(a.amount) - parseFloat(b.amount);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Display transactions
+            const tbody = document.getElementById('transactionsList');
+            tbody.innerHTML = '';
+
+            filteredTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>
+                        <span class="badge ${transaction.type === 'income' ? 'bg-success' : 'bg-danger'}">
+                            ${transaction.type.toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                        ${formatCurrency(transaction.amount)}
+                    </td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.person_name}</td>
+                    <td>
+                        ${transaction.photo ? 
+                            `<img src="${transaction.photo}" class="transaction-photo" alt="Transaction photo">` : 
+                            'No photo'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Add event listeners
+        document.getElementById('typeFilter').addEventListener('change', loadTransactions);
+        document.getElementById('sortBy').addEventListener('change', loadTransactions);
+        document.getElementById('searchInput').addEventListener('input', loadTransactions);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadTransactions);
+    </script>
 </body>
 </html>

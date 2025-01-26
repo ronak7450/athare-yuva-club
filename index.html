@@ -7,8 +7,6 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -25,6 +23,18 @@
             margin: 0;
             font-size: 2.5rem;
             font-weight: bold;
+        }
+        .transaction-list {
+            margin-top: 2rem;
+        }
+        .transaction-card {
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .transaction-photo {
+            max-width: 100px;
+            border-radius: 5px;
         }
         @media (max-width: 768px) {
             .welcome-banner {
@@ -89,18 +99,168 @@
                 </div>
             </div>
 
-            <div class="row">
+            <!-- Transaction Chart -->
+            <div class="row mb-4">
                 <div class="col-md-12">
-                    <canvas id="transactionChart"></canvas>
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="transactionChart"></canvas>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="transaction-list">
+                <h3>Recent Transactions</h3>
+                <div id="recentTransactions"></div>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="js/script.js"></script>
-    <script src="js/dashboard.js"></script>
+    
+    <script>
+        // Function to format currency
+        function formatCurrency(amount) {
+            return '₹' + parseFloat(amount).toLocaleString('en-IN');
+        }
+
+        // Load and display transactions
+        function loadTransactions() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            // Calculate totals
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncome += parseFloat(transaction.amount);
+                } else {
+                    totalExpense += parseFloat(transaction.amount);
+                }
+            });
+
+            // Update dashboard numbers
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
+            document.getElementById('balance').textContent = formatCurrency(totalIncome - totalExpense);
+
+            // Display recent transactions
+            const recentTransactions = transactions.slice(-5).reverse();
+            const transactionsContainer = document.getElementById('recentTransactions');
+            transactionsContainer.innerHTML = '';
+
+            recentTransactions.forEach(transaction => {
+                const card = document.createElement('div');
+                card.className = `card transaction-card ${transaction.type === 'income' ? 'border-success' : 'border-danger'}`;
+                card.innerHTML = `
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <h5 class="card-title ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                                    ${formatCurrency(transaction.amount)}
+                                </h5>
+                                <p class="card-text text-muted">${transaction.date}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="card-text">${transaction.description}</p>
+                                <p class="card-text text-muted">By: ${transaction.person_name}</p>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge ${transaction.type === 'income' ? 'bg-success' : 'bg-danger'}">
+                                    ${transaction.type.toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="col-md-4">
+                                ${transaction.photo ? `<img src="${transaction.photo}" class="transaction-photo" alt="Transaction photo">` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                transactionsContainer.appendChild(card);
+            });
+
+            // Update chart
+            updateTransactionChart(transactions);
+        }
+
+        // Update transaction chart
+        function updateTransactionChart(transactions) {
+            const ctx = document.getElementById('transactionChart').getContext('2d');
+            
+            // Process data for chart
+            const dates = [...new Set(transactions.map(t => t.date))].sort();
+            const incomeData = {};
+            const expenseData = {};
+            
+            dates.forEach(date => {
+                incomeData[date] = 0;
+                expenseData[date] = 0;
+            });
+
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    incomeData[transaction.date] = (incomeData[transaction.date] || 0) + parseFloat(transaction.amount);
+                } else {
+                    expenseData[transaction.date] = (expenseData[transaction.date] || 0) + parseFloat(transaction.amount);
+                }
+            });
+
+            // Create chart
+            if (window.transactionChart) {
+                window.transactionChart.destroy();
+            }
+
+            window.transactionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: dates.map(date => incomeData[date]),
+                            borderColor: '#198754',
+                            backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Expense',
+                            data: dates.map(date => expenseData[date]),
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Income vs Expense Trend'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadTransactions);
+
+        // Refresh data every 30 seconds
+        setInterval(loadTransactions, 30000);
+    </script>
 </body>
 </html>
