@@ -1,0 +1,244 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    font-size: 16px;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    h1 {
+        font-size: 1.8rem !important;
+    }
+    h2 {
+        font-size: 1.5rem !important;
+    }
+    h3 {
+        font-size: 1.2rem !important;
+    }
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    .welcome-banner h1 {
+        font-size: 1.8rem !important;
+    }
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.3rem 0.6rem;
+    min-height: 42px;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 0.8rem;
+    }
+    .card-body {
+        padding: 0.8rem;
+    }
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+.modal-content {
+    border-radius: 12px;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+#transactionChart {
+    margin-top: 15px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Container padding adjustments for mobile */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .row {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+    .col, [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+/* Table responsive styles */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.9rem;
+    }
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+}
+
+/* Mobile Navigation Styles */
+.mobile-nav {
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.mobile-nav .list-group-item {
+    border: none;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-nav .list-group-item i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.mobile-nav .list-group-item.active {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    font-weight: 600;
+    border-left: 3px solid #0d6efd;
+}
+
+.mobile-nav .list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* Desktop Navigation Improvements */
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    padding: 10px 20px;
+    color: #6c757d;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    font-weight: 600;
+    border-bottom: 2px solid #0d6efd;
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 8px;
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+    display: flex;
+    gap: 3px;
+}
+
+.nav-buttons .btn {
+    border: none;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.2s ease;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    border-radius: 3px;
+}
+
+.nav-buttons .btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.nav-buttons .btn.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 500;
+}
+
+.nav-buttons .btn i {
+    margin-right: 4px;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.25rem 0.5rem;
+        min-height: 38px;
+    }
+    
+    .nav-buttons {
+        gap: 2px;
+    }
+    
+    .nav-buttons .btn {
+        padding: 3px 8px;
+        font-size: 0.8rem;
+        min-height: 26px;
+    }
+    
+    .nav-buttons .btn i {
+        font-size: 0.85rem;
+        margin-right: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-buttons .btn {
+        padding: 3px 6px;
+    }
+}
+
+/* Mobile Responsive Navigation */
+@media (max-width: 768px) {
+    /* Hide button text on very small screens, show only icons */
+    @media (max-width: 480px) {
+        .nav-buttons .btn span {
+            display: none;
+        }
+        
+        .nav-buttons .btn {
+            padding: 8px 12px;
+        }
+        
+        .nav-buttons .btn i {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+    }
+}
